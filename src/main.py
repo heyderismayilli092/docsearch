@@ -9,7 +9,7 @@ import os
 import locale
 import docsearch
 import docextract
-from docsearch_functions import files_list
+from docsearch_functions import files_list, check_database
 
 locale.bindtextdomain('pardus-docsearch', '/usr/share/locale')
 locale.textdomain('pardus-docsearch')
@@ -33,14 +33,19 @@ class pardusdocsearch:
         # Main Window
         self.mainwindow.connect("destroy", self._on_destroy)
         self.mainwindow.show_all()
-        self.cssload()
+        self.other_process()
 
+
+
+    # other process functions
+    def other_process(self):
+        self.cssload()  # load css
+        check_database()  # check database status
+        # listing files
         for f in files_list():
             row = self.create_row(os.path.basename(f), f)
             self.listbox.add(row)
         self.listbox.show_all()
-
-
 
 
     # CSS theme
@@ -62,20 +67,15 @@ class pardusdocsearch:
 
     # row function to be created for each data point
     def create_row(self, filename, fullpath):
-
-        row_box = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL,
-            spacing=5
-        )
+        row_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
 
         # ICON box
         image = Gtk.Image.new_from_icon_name("text-x-generic",Gtk.IconSize.BUTTON)
         image.set_halign(Gtk.Align.START)
 
-        # TEXT box
+        # TEXT box and labels
         text_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         text_box.set_halign(Gtk.Align.CENTER)
-
         label_name = Gtk.Label(label=filename)
         label_name.set_xalign(0)
 
@@ -84,19 +84,19 @@ class pardusdocsearch:
         label_path = Gtk.Label(label=short_path)
         label_path.set_xalign(0)
 
-        text_box.pack_start(label_name, False, False, 0)
-        text_box.pack_start(label_path, False, False, 0)
-
-        # BUTTON box
+        # BUTTON box and buttons
         button_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         button_box.set_halign(Gtk.Align.END)
-
         button_open = Gtk.Button(label="Open")
         button_info = Gtk.Button(label="Info")
 
         # -------Signals-------
         button_open.connect("clicked", self.on_open_clicked, fullpath)
         button_info.connect("clicked", self.on_info_clicked, fullpath)
+        # ---------------------
+
+        text_box.pack_start(label_name, False, False, 0)
+        text_box.pack_start(label_path, False, False, 0)
 
         button_box.pack_start(button_open, False, False, 0)
         button_box.pack_start(button_info, False, False, 0)
