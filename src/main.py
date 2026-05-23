@@ -3,11 +3,14 @@
 
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GObject, Gdk
+from gi.repository import Gtk, GObject, Gdk, GLib
 
 import os
 import subprocess
 import locale
+import threading
+import queue
+import time
 import docsearch
 import docextract
 from docsearch_functions import files_list, check_database
@@ -27,6 +30,7 @@ class pardusdocsearch:
         # Main Window
         self.mainwindow = self.builder.get_object("mainwindow")  # home window
         self.listbox    = self.builder.get_object("listbox")  # listbox object
+        self.mainstack      = self.builder.get_object("main_stack")
         self.scrolled_window = self.builder.get_object("scrolled_window")  # scrolled window
         self.scrolled_window.set_min_content_height(400)  # the height of the list window is being adjusted in pixels
 
@@ -34,36 +38,56 @@ class pardusdocsearch:
         # Main Window
         self.mainwindow.connect("destroy", self._on_destroy)
         self.mainwindow.show_all()
-        self.other_process()
+
+        check_database()
+        self.mainstack.set_visible_child_name("page0")
+        GLib.idle_add(self.start_background_once)  # the process will run in the background immediately after the application starts
+        self._row_queue = queue.Queue()  # process queue structure  Thread -> main thread data transfer
+        self._consuming = False
 
 
+    def start_background_once(self):
+        # start worker thread
+        t = threading.Thread(target=self._worker_produce_rows, daemon=True)
+        t.start()
 
-    # other process functions
-    def other_process(self):
-        self.cssload()  # load css
-        check_database()  # check database status
-        # listing files
-        for f in files_list():
-            row = self.create_row(os.path.basename(f), f)
-            self.listbox.add(row)
-        self.listbox.show_all()
+        # start the loop that consumes the queue in the main thread
+        if not self._consuming:
+            self._consuming = True
+            GLib.timeout_add(100, self._consume_queue)  # consume at 100 ms intervals
+        return False
 
 
-    # CSS theme
-    def cssload(self):
-        css = b"""
-        #listbox {
-          margin-bottom: 20px;
-        }
-        """
-        provider = Gtk.CssProvider()
-        provider.load_from_data(css)
-        screen = Gdk.Screen.get_default()
-        Gtk.StyleContext.add_provider_for_screen(
-            screen,
-            provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-        )
+    def _worker_produce_rows(self):
+        # heavy work: listing files, printing to database
+        fileslist = files_list()
+        for f in fileslist:  # files_list() --- May be CPU/IO bound
+            self._row_queue.put(f)
+
+        # report to the main cycle that production is complete
+        self._row_queue.put(None)  # sentinel
+
+    # It runs on the main thread (via GLib.timeout_add). It retrieves items from the queue, calling create_row and listbox.add here
+    def _consume_queue(self):
+        try:
+            while True:
+                try:
+                    item = self._row_queue.get_nowait()
+                except queue.Empty:
+                    return True  # The queue is currently empty, return True to be called again
+
+                if item is None:
+                    # Sentinel: generation finished
+                    self.mainstack.set_visible_child_name("mainbox")
+                    self.listbox.show_all()
+                    return False  # finish consumption, stop timeout
+                else:
+                    # create and add rows safely in the main thread
+                    row = self.create_row(os.path.basename(item), item)
+                    self.listbox.add(row)
+        except Exception as e:
+            print("Error occurring during queue consumption:", e)
+            return False
 
 
     # row function to be created for each data point
