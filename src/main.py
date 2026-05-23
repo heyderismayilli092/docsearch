@@ -40,15 +40,30 @@ class pardusdocsearch:
         self.listbox.show_all()
 
 
+
     # row function to be created for each data point
     def create_row(self, filename, fullpath):
+        # Main Box
         row_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
 
-        label = Gtk.Label(label=filename)
-        button_open = Gtk.Button(label="Open")
+        image = Gtk.Image.new_from_icon_name("text-x-generic", Gtk.IconSize.BUTTON)  # icon (left)
 
+        label = Gtk.Label(label=filename)  # filename label (center)
+        label.set_xalign(0)  # align left
+
+        # Right: vertical spiral buttons
+        button_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        button_open = Gtk.Button(label="Open")
+        button_info = Gtk.Button(label="Info")
+
+        # Add buttons
+        button_box.pack_start(button_open, False, False, 0)
+        button_box.pack_start(button_info, False, False, 0)
+        # Row layout
+        row_box.pack_start(image, False, False, 5)
         row_box.pack_start(label, True, True, 5)
-        row_box.pack_end(button_open, False, False, 5)
+        row_box.pack_end(button_box, False, False, 5)
+
         return row_box
 
 
