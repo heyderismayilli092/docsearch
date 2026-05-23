@@ -8,7 +8,7 @@
     <property name="default-width">800</property>
     <property name="default-height">400</property>
     <child>
-      <object class="GtkStack" id="stackbox">
+      <object class="GtkStack" id="main_stack">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
         <child>
@@ -55,50 +55,45 @@
             </child>
           </object>
           <packing>
+            <property name="name">mainbox</property>
+            <property name="title" translatable="yes">mainbox</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="page0">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="orientation">vertical</property>
+            <property name="homogeneous">True</property>
+            <child>
+              <object class="GtkSpinner">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="active">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Retrieve files list...</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
             <property name="name">page0</property>
             <property name="title" translatable="yes">page0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkBox" id="process_embed">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-          </object>
-          <packing>
-            <property name="name">page1</property>
-            <property name="title" translatable="yes">page1</property>
             <property name="position">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkBox" id="process_fileslist">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-          </object>
-          <packing>
-            <property name="name">page2</property>
-            <property name="title" translatable="yes">page2</property>
-            <property name="position">2</property>
           </packing>
         </child>
       </object>
