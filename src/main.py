@@ -10,10 +10,11 @@ import subprocess
 import locale
 import threading
 import queue
+import sys
 import time
 import docsearch
 import docextract
-from docsearch_functions import files_list, check_database
+from docsearch_functions import files_list, check_database, embedfile
 
 locale.bindtextdomain('pardus-docsearch', '/usr/share/locale')
 locale.textdomain('pardus-docsearch')
@@ -32,6 +33,7 @@ class pardusdocsearch:
         self.listbox    = self.builder.get_object("listbox")  # listbox object
         self.mainstack      = self.builder.get_object("main_stack")
         self.scrolled_window = self.builder.get_object("scrolled_window")  # scrolled window
+        self.status_label    = self.builder.get_object("status_label")  # status label
         self.scrolled_window.set_min_content_height(400)  # the height of the list window is being adjusted in pixels
 
         # -------Signals-------
@@ -42,14 +44,20 @@ class pardusdocsearch:
         check_database()
         self.mainstack.set_visible_child_name("page0")
         GLib.idle_add(self.start_background_once)  # the process will run in the background immediately after the application starts
-        self._row_queue = queue.Queue()  # process queue structure  Thread -> main thread data transfer
+
+        self.doc_queue = queue.Queue()  # process queue structure  Thread -> main thread data transfer
+        self.db_queue = queue.Queue()
+
         self._consuming = False
+        self.listbox_done = False
+        self.embed_done = False
 
 
     def start_background_once(self):
         # start worker thread
-        t = threading.Thread(target=self._worker_produce_rows, daemon=True)
-        t.start()
+        threading.Thread(target=self._worker_produce_rows, daemon=True).start()
+
+        threading.Thread(target=self.db_embed_worker, daemon=True).start()
 
         # start the loop that consumes the queue in the main thread
         if not self._consuming:
@@ -60,34 +68,50 @@ class pardusdocsearch:
 
     def _worker_produce_rows(self):
         # heavy work: listing files, printing to database
-        fileslist = files_list()
-        for f in fileslist:  # files_list() --- May be CPU/IO bound
-            self._row_queue.put(f)
-
+        for f in files_list():  # files_list() --- May be CPU/IO bound
+            self.doc_queue.put(f)
+            self.db_queue.put(f)
+        self.listbox_done = True
         # report to the main cycle that production is complete
-        self._row_queue.put(None)  # sentinel
+        self.doc_queue.put(None)
+        self.db_queue.put(None)
 
-    # It runs on the main thread (via GLib.timeout_add). It retrieves items from the queue, calling create_row and listbox.add here
+
+    def db_embed_worker(self):
+        while True:
+            doc_path = self.db_queue.get()
+            if doc_path is None:
+                break
+            embedfile(doc_path)
+        self.embed_done = True
+
+
     def _consume_queue(self):
-        try:
-            while True:
-                try:
-                    item = self._row_queue.get_nowait()
-                except queue.Empty:
-                    return True  # The queue is currently empty, return True to be called again
+        processed_any = False
+        while True:
+            try:
+                path = self.doc_queue.get_nowait()
+            except queue.Empty:
+                break
 
-                if item is None:
-                    # Sentinel: generation finished
-                    self.mainstack.set_visible_child_name("mainbox")
-                    self.listbox.show_all()
-                    return False  # finish consumption, stop timeout
-                else:
-                    # create and add rows safely in the main thread
-                    row = self.create_row(os.path.basename(item), item)
-                    self.listbox.add(row)
-        except Exception as e:
-            print("Error occurring during queue consumption:", e)
+        if path is None:
+            # process finished
+            self.listbox_done = True
             return False
+
+        filename = os.path.basename(path)
+        row = self.create_row(filename, path)
+        self.listbox.add(row)
+
+        self.status_label.set_label(f"Writing:\n{doc_path}")
+
+        if self.listbox_done and self.embed_done:
+            self.mainstack.set_visible_child_name("mainbox")
+            return False
+
+        processed_any = True
+        return True
+
 
 
     # row function to be created for each data point
