@@ -6,6 +6,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GObject, Gdk
 
 import os
+import subprocess
 import locale
 import docsearch
 import docextract
@@ -80,7 +81,7 @@ class pardusdocsearch:
         label_name.set_xalign(0)
 
         # the file path text is being shortened
-        short_path = fullpath[:15] + "..." if len(fullpath) > 15 else fullpath
+        short_path = fullpath[:50] + "..." if len(fullpath) > 50 else fullpath
         label_path = Gtk.Label(label=short_path)
         label_path.set_xalign(0)
 
@@ -88,18 +89,18 @@ class pardusdocsearch:
         button_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         button_box.set_halign(Gtk.Align.END)
         button_open = Gtk.Button(label="Open")
-        button_info = Gtk.Button(label="Info")
+        button_opndir = Gtk.Button(label="Open in directory")
 
         # -------Signals-------
-        button_open.connect("clicked", self.on_open_clicked, fullpath)
-        button_info.connect("clicked", self.on_info_clicked, fullpath)
+        button_open.connect("clicked", self.on_open_file, fullpath)
+        button_opndir.connect("clicked", self.on_open_in_directory, fullpath)
         # ---------------------
 
         text_box.pack_start(label_name, False, False, 0)
         text_box.pack_start(label_path, False, False, 0)
 
         button_box.pack_start(button_open, False, False, 0)
-        button_box.pack_start(button_info, False, False, 0)
+        button_box.pack_start(button_opndir, False, False, 0)
 
         # ROW placement (efforts were made to minimize gaps)
         row_box.pack_start(image, False, False, 3)
@@ -109,13 +110,13 @@ class pardusdocsearch:
         return row_box
 
 
-    # test
-    def on_open_clicked(self, button, fullpath):
-        print("OPEN:", fullpath)
+    # file open
+    def on_open_file(self, button, fullpath):
+        subprocess.run(["xdg-open", fullpath])
 
-    # test
-    def on_info_clicked(self, button, fullpath):
-        print("INFO:", fullpath)
+    # file open in directory
+    def on_open_in_directory(self, button, fullpath):
+        subprocess.run(["thunar", fullpath])
 
 
     def _on_destroy(self, widget):
