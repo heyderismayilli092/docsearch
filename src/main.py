@@ -154,6 +154,8 @@ class pardusdocsearch:
         row_box.pack_start(text_box, False, False, 3)
         row_box.pack_end(button_box, False, False, 3)
 
+        row_box.set_tooltip_text("File full path: "+fullpath)
+
         return row_box
 
 
