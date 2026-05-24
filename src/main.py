@@ -33,6 +33,8 @@ class pardusdocsearch:
         self.mainstack      = self.builder.get_object("main_stack")
         self.scrolled_window = self.builder.get_object("scrolled_window")  # scrolled window
         self.status_label    = self.builder.get_object("status_label")  # status label
+        self.warning_label    = self.builder.get_object("warning_label")  # warning label
+        self.warning_label.set_label(_("The process of writing files from your computer to the database may take a long time\nDo not close the screen until the process is complete"))  # warning message is being printed
         self.searchbutton    = self.builder.get_object("searchbutton")  # search button
         self.search_entry    = self.builder.get_object("search_entry")  # search entry box
         self.search_entry.set_width_chars(40)  # length of the text box
