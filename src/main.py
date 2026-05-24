@@ -102,7 +102,8 @@ class pardusdocsearch:
                 break
 
             filename = os.path.basename(doc_path)
-            row = self.create_row(filename, doc_path)
+            tooltip_txt = _("File full path: ")+doc_path
+            row = self.create_row(filename, doc_path, tooltip_txt)
             self.listbox.add(row)
 
         # the main screen will not be accessed until the result of both operations is True, and `return True` will continue to run
@@ -116,7 +117,7 @@ class pardusdocsearch:
 
 
     # row function to be created for each data point
-    def create_row(self, filename, fullpath):
+    def create_row(self, filename, fullpath, tooltip_txt):
         row_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
 
         # ICON box
@@ -156,7 +157,7 @@ class pardusdocsearch:
         row_box.pack_start(text_box, False, False, 3)
         row_box.pack_end(button_box, False, False, 3)
 
-        row_box.set_tooltip_text(_("File full path: ")+fullpath)
+        row_box.set_tooltip_text(tooltip_txt)
 
         return row_box
 
@@ -179,7 +180,7 @@ class pardusdocsearch:
         # writing the results to a listbox object
         for f in output:
             srcname = os.path.basename(f["source"])
-            row = self.create_row(srcname, f["source"])
+            row = self.create_row(srcname, f["source"], _("Content:\n")+f["chunk"])
             self.listbox.add(row)
         self.listbox.show_all()
 
