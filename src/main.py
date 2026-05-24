@@ -7,13 +7,14 @@ from gi.repository import Gtk, GObject, Gdk, GLib
 
 import os
 import subprocess
-import locale
 import threading
 import queue
 import sys
 import time
 import docsearch
 import docextract
+import locale
+from locale import gettext as _
 from docsearch_functions import files_list, check_database, embedfile
 
 locale.bindtextdomain('pardus-docsearch', '/usr/share/locale')
@@ -82,7 +83,7 @@ class pardusdocsearch:
             if doc_path is None:
                 break
             embedfile(doc_path)  # the process of writing to the database is being performed
-            self.status_label.set_text(f"Writing:\n{doc_path}")
+            self.status_label.set_text(_("Writing:\n")+doc_path)
         self.embed_done = True
 
 
@@ -118,7 +119,7 @@ class pardusdocsearch:
         row_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
 
         # ICON box
-        image = Gtk.Image.new_from_icon_name("text-x-generic",Gtk.IconSize.BUTTON)
+        image = Gtk.Image.new_from_icon_name("text-x-generic", Gtk.IconSize.BUTTON)
         image.set_halign(Gtk.Align.START)
 
         # TEXT box and labels
@@ -135,8 +136,8 @@ class pardusdocsearch:
         # BUTTON box and buttons
         button_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         button_box.set_halign(Gtk.Align.END)
-        button_open = Gtk.Button(label="Open")
-        button_opndir = Gtk.Button(label="Open in directory")
+        button_open = Gtk.Button(label=_("Open"))
+        button_opndir = Gtk.Button(label=_("Open in directory"))
 
         # -------Signals-------
         button_open.connect("clicked", self.on_open_file, fullpath)
@@ -154,7 +155,7 @@ class pardusdocsearch:
         row_box.pack_start(text_box, False, False, 3)
         row_box.pack_end(button_box, False, False, 3)
 
-        row_box.set_tooltip_text("File full path: "+fullpath)
+        row_box.set_tooltip_text(_("File full path: ")+fullpath)
 
         return row_box
 
