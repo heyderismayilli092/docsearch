@@ -35,6 +35,8 @@ class pardusdocsearch:
         self.status_label    = self.builder.get_object("status_label")  # status label
         self.searchbutton    = self.builder.get_object("searchbutton")  # search button
         self.search_entry    = self.builder.get_object("search_entry")  # search entry box
+        self.search_entry.set_width_chars(40)  # length of the text box
+        self.search_entry.set_placeholder_text(_("Enter the content:"))  # placeholder
         self.scrolled_window.set_min_content_height(400)  # the height of the list window is being adjusted in pixels
 
         # -------Signals-------
