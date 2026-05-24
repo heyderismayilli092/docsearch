@@ -11,11 +11,9 @@ import threading
 import queue
 import sys
 import time
-import docsearch
-import docextract
 import locale
 from locale import gettext as _
-from docsearch_functions import files_list, check_database, embedfile
+from docsearch_functions import files_list, check_database, embedfile, search
 
 locale.bindtextdomain('pardus-docsearch', '/usr/share/locale')
 locale.textdomain('pardus-docsearch')
@@ -35,11 +33,14 @@ class pardusdocsearch:
         self.mainstack      = self.builder.get_object("main_stack")
         self.scrolled_window = self.builder.get_object("scrolled_window")  # scrolled window
         self.status_label    = self.builder.get_object("status_label")  # status label
+        self.searchbutton    = self.builder.get_object("searchbutton")  # search button
+        self.search_entry    = self.builder.get_object("search_entry")  # search entry box
         self.scrolled_window.set_min_content_height(400)  # the height of the list window is being adjusted in pixels
 
         # -------Signals-------
         # Main Window
         self.mainwindow.connect("destroy", self._on_destroy)
+        self.searchbutton.connect("clicked", self.on_search)
         self.mainwindow.show_all()
 
         check_database()
@@ -48,11 +49,11 @@ class pardusdocsearch:
 
         # process queue structure
         self.doc_queue = queue.Queue()
-        self.db_queue = queue.Queue()
+        self.db_queue  = queue.Queue()
 
-        self._consuming = False
+        self._consuming   = False
         self.listbox_done = False  # once objects are entered into the list box, this variable is set to "True" when the process is complete
-        self.embed_done = False  # This variable is set to "True" after the database embedding process is complete
+        self.embed_done   = False  # This variable is set to "True" after the database embedding process is complete
 
 
     def start_background_once(self):
@@ -167,6 +168,20 @@ class pardusdocsearch:
     # file open in directory
     def on_open_in_directory(self, button, fullpath):
         subprocess.run(["thunar", fullpath])
+
+    # search button
+    def on_search(self, button):
+        searchcontent = self.search_entry.get_text()
+        output = search(searchcontent)  # searching content
+        # clearing a populated listbox object
+        for row in self.listbox.get_children():
+          row.destroy()
+        # writing the results to a listbox object
+        for f in output:
+            srcname = os.path.basename(f["source"])
+            row = self.create_row(srcname, f["source"])
+            self.listbox.add(row)
+        self.listbox.show_all()
 
 
     def _on_destroy(self, widget):
