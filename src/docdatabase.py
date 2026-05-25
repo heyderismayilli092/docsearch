@@ -1,6 +1,8 @@
 import sqlite3
 import uuid
+import threading
 
+_local = threading.local()
 
 # ----------------------------------------
 def insert_row(cur, source, stype, page, l_start, l_end, chunk):
@@ -18,7 +20,7 @@ def insert_row(cur, source, stype, page, l_start, l_end, chunk):
 
 
 # ----------------------------------------
-def init_storage(db):
+def create_database(db):
     conn = sqlite3.connect(db)
     cur = conn.cursor()
 
@@ -42,6 +44,16 @@ def init_storage(db):
     """)
 
     conn.commit()
+    conn.close()
+
+
+# ----------------------------------------
+def get_conn(db):
+    # it reduces connection costs by opening it only once with each function call
+    if not hasattr(_local, "conn"):  # it checks whether this thread has been created before
+        _local.conn = sqlite3.connect(db)
+
+    conn = _local.conn  # this thread-specific link is obtained
+    cur = conn.cursor()
 
     return conn, cur
-
