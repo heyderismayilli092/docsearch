@@ -1,14 +1,18 @@
 from rank_bm25 import BM25Okapi
+from pathlib import Path
 import docdatabase
 import os
+
+homefolder = Path.home()
+dbpath = homefolder / ".cache" / "pardus-docsearch" / "docdatabase.db"
 
 
 # bm25 algorithm loading
 def load_bm25(db_path):
+    conn, cur = docdatabase.get_conn(dbpath)
+
     if not os.path.exists(db_path):
         raise BaseException(f"database not found: {db_path}")
-
-    conn, cur = docdatabase.init_storage(db_path)  # connection database
 
     cur.execute("SELECT source_name, source_type, page_number, line_start, line_end, chunk FROM documents")  # reading database
     rows = cur.fetchall()
@@ -18,14 +22,16 @@ def load_bm25(db_path):
 
     corpus = [r[5].lower().split() for r in rows]
     bm25 = BM25Okapi(corpus)  # creating bm25 model
-    return conn, rows, bm25
+    return rows, bm25
 
 
 
 # search with BM25
 def bm25_search(db_path, query):
+    conn, cur = docdatabase.get_conn(dbpath)
+
     top_k = 50  # the number of most relevant results to be returned is set to 50
-    conn, rows, bm25 = load_bm25(db_path)
+    rows, bm25 = load_bm25(db_path, cur)
 
     tokens = query.lower().split()
     scores = bm25.get_scores(tokens)  # the relevance scores of each query to each document are calculated
@@ -56,8 +62,5 @@ def bm25_search(db_path, query):
 
     conn.close()
 
-    return {
-        "query": query,
-        "results": results
-    }
+    return { "results": results }
 

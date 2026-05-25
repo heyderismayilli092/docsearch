@@ -2,6 +2,10 @@ import pdfplumber
 import hashlib
 import docdatabase
 from PyPDF2 import PdfReader
+from pathlib import Path
+
+homefolder = Path.home()
+dbpath = homefolder / ".cache" / "pardus-docsearch" / "docdatabase.db"
 
 
 # Retrieve hash byte
@@ -10,7 +14,9 @@ def file_hash_bytes(data: bytes):
 
 
 # ---- Converting TXT files to text ----
-def index_txt_bytes(filename, data, conn, cur):
+def index_txt_bytes(filename, data):
+    conn, cur = docdatabase.get_conn(dbpath)
+
     # the existence of the same data in the database is checked
     srcname = cur.execute("SELECT source_name FROM documents").fetchall()
     srcname = [r[0] for r in srcname]
@@ -34,7 +40,9 @@ def index_txt_bytes(filename, data, conn, cur):
 
 
 # ---- Converting PDF files to text ----
-def index_pdf_bytes(filename, data, conn, cur):
+def index_pdf_bytes(filename, data):
+    conn, cur = docdatabase.get_conn(dbpath)
+
     # the existence of the same data in the database is checked
     srcname = cur.execute("SELECT source_name FROM documents").fetchall()
     srcname = [r[0] for r in srcname]
@@ -63,8 +71,8 @@ def index_pdf_bytes(filename, data, conn, cur):
                     chunk = text[i:i + PDF_CHARS_PER_CHUNK].strip()
                     if chunk:
                         docdatabase.insert_row(cur, filename, "pdf", page_no, None, None, chunk)  # writing to the database
-                        conn.commit()
                     i += PDF_CHARS_PER_CHUNK - PDF_OVERLAP
                 continue
+    conn.commit()
     return True
 

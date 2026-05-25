@@ -13,6 +13,8 @@ import sys
 import time
 import locale
 from locale import gettext as _
+
+import docdatabase
 from docsearch_functions import files_list, check_database, embedfile, search
 
 locale.bindtextdomain('pardus-docsearch', '/usr/share/locale')

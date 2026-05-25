@@ -12,7 +12,7 @@ def check_database():
     if not os.path.exists(dbpath):
       os.makedirs(dbpath)
     os.chdir(dbpath)
-    docdatabase.init_storage(dbpath / "docdatabase.db")  # a database is being created at the specified location
+    docdatabase.create_database(dbpath / "docdatabase.db")  # a database is being created at the specified location
 
 
 # a function that lists all files on the computer
@@ -36,19 +36,14 @@ def files_list():
 def embedfile(file):
     filetype = file[-3:]
 
-    homefolder = Path.home()
-    dbpath = homefolder / ".cache" / "pardus-docsearch"  # location where the database will be placed
-
-    conn, cur = docdatabase.init_storage(dbpath / "docdatabase.db")
-
     if filetype != "pdf" and filetype != "txt":
       return False
     with open(file, "rb") as rdfile:
       data = rdfile.read()
     if filetype == "pdf":
-        docextract.index_pdf_bytes(file, data, conn, cur)
+        docextract.index_pdf_bytes(file, data)
     elif filetype == "txt":
-        docextract.index_txt_bytes(file, data, conn, cur)
+        docextract.index_txt_bytes(file, data)
 
     return True
 
