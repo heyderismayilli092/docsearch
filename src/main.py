@@ -36,6 +36,7 @@ class pardusdocsearch:
         self.mainstack      = self.builder.get_object("main_stack")
         self.scrolled_window = self.builder.get_object("scrolled_window")  # scrolled window
         self.status_label    = self.builder.get_object("status_label")  # status label
+        self.total_files     = self.builder.get_object("total_files")  # total files
         self.warning_label1    = self.builder.get_object("warning_label1")  # warning label
         self.warning_label2    = self.builder.get_object("warning_label2")  # warning label
         self.searchbutton    = self.builder.get_object("searchbutton")  # search button
@@ -54,13 +55,17 @@ class pardusdocsearch:
 
         # first steps to take before the software screen appears
         check_database()
+
         homefolder = Path.home()
         self.dbpath = homefolder / ".cache" / "pardus-docsearch" / "docdatabase.db"  # location where the database will be placed
+
         self.listagain_btn.hide()
         self.warning_label1.set_label(_("The process of writing files from your computer to the database may take a long time\nDo not close the screen until the process is complete"))  # warning message is being printed
         self.warning_label2.hide()  # hide warning label
         self.mainstack.set_visible_child_name("page0")
+        self.db_total_files = docdatabase.totalfiles(self.dbpath)
         GLib.idle_add(self.start_background_once)  # the process will run in the background immediately after the application starts
+
 
         # process queue structure
         self.doc_queue = queue.Queue()
@@ -135,6 +140,7 @@ class pardusdocsearch:
         # the main screen will not be accessed until the result of both operations is True, and `return True` will continue to run
         if self.listbox_done and self.embed_done:
             self.mainstack.set_visible_child_name("mainbox")
+            self.total_files.set_label(_("Total files: ")+str(self.db_total_files))
             self.listbox.show_all()
             return False
 

@@ -57,3 +57,15 @@ def get_conn(db):
     cur = conn.cursor()
 
     return conn, cur
+
+
+# ----------------------------------------
+def totalfiles(db):
+  conn, cur = get_conn(db)
+  output_num = cur.execute("SELECT COUNT(DISTINCT source_name) FROM documents;").fetchone()[0]
+  try:
+    return output_num
+  finally:
+    conn.close()
+
+
