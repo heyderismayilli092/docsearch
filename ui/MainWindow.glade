@@ -12,7 +12,7 @@
     <property name="website">https://github.com/heyderismayilli092/pardus-docsearch</property>
     <property name="website-label" translatable="yes">Web Page</property>
     <property name="authors">Heydar Ismayilli &lt;heyderismayilli092@gmail.com&gt;</property>
-    <property name="logo">/usr/share/icons/hicolor/scalable/apps/pardus-docsearch.png</property>
+    <property name="logo">usr/share/icons/hicolor/scalable/apps/pardus-docsearch.png</property>
     <property name="license-type">gpl-3-0</property>
     <child internal-child="vbox">
       <object class="GtkBox">
@@ -110,11 +110,30 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="total_files">
+                  <object class="GtkBox">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="margin-right">223</property>
-                    <property name="label" translatable="yes">label</property>
+                    <child>
+                      <object class="GtkLabel" id="total_files">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="margin-left">5</property>
+                        <property name="margin-right">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="label" translatable="yes">label</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
