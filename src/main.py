@@ -29,7 +29,7 @@ class pardusdocsearch:
         self.builder = Gtk.Builder()
         self.builder.add_from_file(GLADE_FILE)
 
-        # -------Widget referansları-------
+        # -------Widget references-------
         # Main Window
         self.mainwindow = self.builder.get_object("mainwindow")  # home window
         self.listbox    = self.builder.get_object("listbox")  # listbox object
@@ -42,23 +42,27 @@ class pardusdocsearch:
         self.searchbutton    = self.builder.get_object("searchbutton")  # search button
         self.listagain_btn   = self.builder.get_object("list_again")  # list again button
         self.search_entry    = self.builder.get_object("search_entry")  # search entry box
+        self.aboutbtn        = self.builder.get_object("about_button")  # about button
         self.search_entry.set_width_chars(40)  # length of the text box
         self.search_entry.set_placeholder_text(_("Enter the content:"))  # placeholder
         self.scrolled_window.set_min_content_height(400)  # the height of the list window is being adjusted in pixels
+
+        # About Window
+        self.about_dialog = self.builder.get_object("about_dialog")  # about screen
 
         # -------Signals-------
         # Main Window
         self.mainwindow.connect("destroy", self._on_destroy)
         self.searchbutton.connect("clicked", self.on_search)
         self.listagain_btn.connect("clicked", self.on_list_again)
+        self.aboutbtn.connect("clicked", self._on_aboutdialog)
         self.mainwindow.show_all()
+
 
         # first steps to take before the software screen appears
         check_database()
-
         homefolder = Path.home()
         self.dbpath = homefolder / ".cache" / "pardus-docsearch" / "docdatabase.db"  # location where the database will be placed
-
         self.listagain_btn.hide()
         self.warning_label1.set_label(_("The process of writing files from your computer to the database may take a long time\nDo not close the screen until the process is complete"))  # warning message is being printed
         self.warning_label2.hide()  # hide warning label
@@ -250,6 +254,13 @@ class pardusdocsearch:
             self.listbox.add(row)
         self.listbox.show_all()
         self.listagain_btn.hide()  # the button doesn't need to appear after all files are listed
+
+
+    # about screen
+    def _on_aboutdialog(self, widget):
+      self.about_dialog.run()
+      self.about_dialog.hide()
+      return
 
 
     def _on_destroy(self, widget):
