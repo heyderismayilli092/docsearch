@@ -7,7 +7,7 @@
     <property name="type-hint">dialog</property>
     <property name="program-name">Pardus Document Search</property>
     <property name="version">0.0.1</property>
-    <property name="copyright">© TÜBİTAK BİLGEM</property>
+    <property name="copyright" translatable="yes">© OpenSF90</property>
     <property name="comments" translatable="yes">A search application for quick access to desired documents and text files on your computer</property>
     <property name="website">https://github.com/heyderismayilli092/pardus-docsearch</property>
     <property name="website-label" translatable="yes">Web Page</property>
