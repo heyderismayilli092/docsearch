@@ -1,2 +1,3 @@
-# pardus-docsearch
-A search application for quick access to desired documents and text files on your computer
+# docsearch
+A search application that provides quick access to the documents and text files you want on your computer by searching their contents
+
