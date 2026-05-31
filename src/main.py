@@ -18,13 +18,13 @@ from pathlib import Path
 import docdatabase
 from docsearch_functions import files_list, check_database, embedfile, search
 
-locale.bindtextdomain('pardus-docsearch', '/usr/share/locale')
-locale.textdomain('pardus-docsearch')
+locale.bindtextdomain('docsearch', '/usr/share/locale')
+locale.textdomain('docsearch')
 
 GLADE_FILE = os.path.dirname(os.path.abspath(__file__)) + "/../ui/MainWindow.glade"
 
 
-class pardusdocsearch:
+class docsearch:
     def __init__(self):
         self.builder = Gtk.Builder()
         self.builder.add_from_file(GLADE_FILE)
@@ -59,7 +59,7 @@ class pardusdocsearch:
         # first steps to take before the software screen appears
         check_database()
         homefolder = Path.home()
-        self.dbpath = homefolder / ".cache" / "pardus-docsearch" / "docdatabase.db"  # location where the database will be placed
+        self.dbpath = homefolder / ".cache" / "docsearch" / "docdatabase.db"  # location where the database will be placed
         self.listagain_btn.hide()
         self.warning_label2.hide()  # hide warning label
         self.search_entry.set_placeholder_text(_("Enter the content:"))  # placeholder
@@ -206,7 +206,7 @@ class pardusdocsearch:
     # file open
     def on_open_file(self, button, fullpath, pagenum):
         if fullpath[-3:] == "pdf":
-          subprocess.run(["evince", "-i", pagenum, fullpath])  # in the Pardus operating system, `evince` is installed as the document viewer software
+          subprocess.run(["evince", "-i", pagenum, fullpath]) # 'evince' is used as document viewing software
         else:
           subprocess.run(["xdg-open", fullpath])
 
@@ -302,6 +302,6 @@ class pardusdocsearch:
     def _on_destroy(self, widget):
         Gtk.main_quit()
 
-app = pardusdocsearch()
+app = docsearch()
 Gtk.main()
 

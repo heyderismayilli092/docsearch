@@ -1,13 +1,13 @@
-Source: pardus-docsearch
+Source: docsearch
 Section: x11
 Priority: optional
 Maintainer: Heydar Ismayilli <heyderismayilli092@gmail.com>
 Build-Depends: debhelper-compat (= 13), dh-python, python3-all, python3-setuptools
 Standards-Version: 0.0.1
-Homepage: https://github.com/heyderismayilli092/pardus-docsearch
+Homepage: https://github.com/heyderismayilli092/docsearch
 
-Package: pardus-docsearch
+Package: docsearch
 Architecture: all
 Depends: python3-pymupdf
-Description: Pardus Document Search
+Description: Document Search
   A search application that provides quick access to the documents and text files you want on your computer by searching their contents

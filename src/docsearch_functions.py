@@ -5,7 +5,7 @@ import docsearch
 import os
 
 homefolder = Path.home()
-dbpath = homefolder / ".cache" / "pardus-docsearch"  # location where the database will be placed
+dbpath = homefolder / ".cache" / "docsearch"  # location where the database will be placed
 
 
 # a function that checks the status of the database in the system

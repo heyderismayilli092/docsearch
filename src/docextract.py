@@ -6,7 +6,7 @@ from PyPDF2 import PdfReader
 from pathlib import Path
 
 homefolder = Path.home()
-dbpath = homefolder / ".cache" / "pardus-docsearch" / "docdatabase.db"
+dbpath = homefolder / ".cache" / "docsearch" / "docdatabase.db"
 
 
 # Retrieve hash byte

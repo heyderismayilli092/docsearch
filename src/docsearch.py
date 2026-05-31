@@ -4,7 +4,7 @@ import docdatabase
 import os
 
 homefolder = Path.home()
-dbpath = homefolder / ".cache" / "pardus-docsearch" / "docdatabase.db"
+dbpath = homefolder / ".cache" / "docsearch" / "docdatabase.db"
 
 
 # bm25 algorithm loading
