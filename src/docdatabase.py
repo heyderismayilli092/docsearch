@@ -5,6 +5,46 @@ import threading
 _local = threading.local()
 
 # ----------------------------------------
+# Database creation function
+def create_database(db):
+    conn = sqlite3.connect(db)
+    cur = conn.cursor()
+
+    # 'documents' table
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS documents (
+        id TEXT PRIMARY KEY,
+        source_name TEXT,
+        source_type TEXT,
+        page_number INTEGER,
+        line_start INTEGER,
+        line_end INTEGER,
+        chunk TEXT
+    )
+    """)
+
+    # 'unporcessables' table
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS unprocessables (
+        source_name TEXT,
+        file_hash TEXT
+    )
+    """)
+
+    # 'indexed_files' table
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS indexed_files (
+        source_name TEXT PRIMARY KEY,
+        file_hash TEXT
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+# ----------------------------------------
+# Function for writing data to the 'documents' table in the database
 def insert_row(cur, source, stype, page, l_start, l_end, chunk):
     cur.execute("""
         INSERT INTO documents VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -20,34 +60,23 @@ def insert_row(cur, source, stype, page, l_start, l_end, chunk):
 
 
 # ----------------------------------------
-def create_database(db):
-    conn = sqlite3.connect(db)
-    cur = conn.cursor()
-
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS documents (
-        id TEXT PRIMARY KEY,
-        source_name TEXT,
-        source_type TEXT,
-        page_number INTEGER,
-        line_start INTEGER,
-        line_end INTEGER,
-        chunk TEXT
+# Function for writing data to the 'unprocessables' table in the database
+def unprocessables(cur, source_name, file_hash):
+    cur.execute("""INSERT INTO unprocessables VALUES (?, ?)""",
+        (source_name, file_hash)
     )
-    """)
-
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS indexed_files (
-        source_name TEXT PRIMARY KEY,
-        file_hash TEXT
-    )
-    """)
-
-    conn.commit()
-    conn.close()
 
 
 # ----------------------------------------
+# Function for writing data to the 'indexed_files' table in the database
+def indexed_files(cur, source_name, file_hash):
+    cur.execute("""INSERT INTO indexed_files VALUES (?, ?)""",
+        (source_name, file_hash)
+    )
+
+
+# ----------------------------------------
+# Function that establishes a connection to the database
 def get_conn(db):
     # it reduces connection costs by opening it only once with each function call
     if not hasattr(_local, "conn"):  # it checks whether this thread has been created before
@@ -60,6 +89,7 @@ def get_conn(db):
 
 
 # ----------------------------------------
+# Shows the total number of processed files in the database
 def totalfiles(db):
   conn, cur = get_conn(db)
   output_num = cur.execute("SELECT COUNT(DISTINCT source_name) FROM documents;").fetchone()[0]
