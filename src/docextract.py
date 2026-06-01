@@ -65,6 +65,9 @@ def index_pdf_bytes(filename, data):
         except Exception:
             continue
 
+    if len(valid_pages) == 0:
+        docdatabase.unprocessables(cur, filename, fhash)  # the unprocessable PDF file is being printed to the relevant table
+
     # Parse Process
     try:
         with pdfplumber.open(tmp_path) as pdf:
