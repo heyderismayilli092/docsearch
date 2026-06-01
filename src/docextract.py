@@ -66,7 +66,13 @@ def index_pdf_bytes(filename, data):
             continue
 
     if len(valid_pages) == 0:
+        srcpath = cur.execute("SELECT source_name FROM unprocessables").fetchall()  # we are checking whether this unprocessable file has been written to the database before
+        srcpath = [r[0] for r in srcpath]
+        if filename in srcpath:
+          return True
         docdatabase.unprocessables(cur, filename, fhash)  # the unprocessable PDF file is being printed to the relevant table
+        conn.commit()
+        return True
 
     # Parse Process
     try:
