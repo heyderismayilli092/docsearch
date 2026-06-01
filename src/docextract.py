@@ -15,7 +15,7 @@ def file_hash_bytes(data: bytes):
 
 # Useless page filter for BM25
 def is_bad_page_fast(page_text):
-    return len(page_text.strip()) < 20
+    return len(page_text.strip()) < 30
 
 
 
@@ -50,6 +50,7 @@ def index_pdf_bytes(filename, data):
     with open(tmp_path, "wb") as f:
         f.write(data)
 
+    fhash = file_hash_bytes(data)  # retrieve file hash value
     extracted_any = False
 
     # FAST FILTER -- the text-containing pages of the PDF file to be processed are filtered using 'PyMuPDF' software
@@ -87,10 +88,12 @@ def index_pdf_bytes(filename, data):
                         if chunk:
                             docdatabase.insert_row(cur, filename, "pdf", page_no, None, None, chunk)
                         i += PDF_CHARS_PER_CHUNK - PDF_OVERLAP
+
+        docdatabase.indexed_files(cur, filename, fhash)  # the file path and hash value are printed to the database
         conn.commit()
 
     except pdfplumber.utils.exceptions.PdfminerException:
-        return False
+        return True
 
     return True
 
