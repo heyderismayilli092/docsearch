@@ -68,17 +68,23 @@ class docsearch:
         self.scrolled_window.set_min_content_height(400)  # the height of the list window is being adjusted in pixels
         self.mainstack.set_visible_child_name("page0")
         self.db_total_files = docdatabase.totalfiles(self.dbpath)
-        GLib.idle_add(self.start_background_once)  # the process will run in the background immediately after the application starts
 
+        self.conn, self.cur = docdatabase.get_conn(self.dbpath)
+        self.srcpath = self.cur.execute("SELECT source_name FROM documents").fetchall()
+        self.srcpath = [r[0] for r in self.srcpath]
 
         # process queue structure
         self.doc_queue = queue.Queue()
         self.db_queue  = queue.Queue()
+        self.label_queue = queue.Queue()  # Yeni: label güncellemeleri için ayrı kuyruk
 
         self._consuming   = False
         self.listbox_done = False  # once objects are entered into the list box, this variable is set to "True" when the process is complete
         self.embed_done   = False  # This variable is set to "True" after the database embedding process is complete
 
+        self.pending_rows = []  # (filename, doc_path, tooltip_txt) tuples
+
+        GLib.idle_add(self.start_background_once)  # the process will run in the background immediately after the application starts
 
     def start_background_once(self):
         # start worker thread
@@ -89,6 +95,7 @@ class docsearch:
         if not self._consuming:
             self._consuming = True
             GLib.timeout_add(100, self._consume_queue)  # consume at 100 ms intervals
+            GLib.timeout_add(100, self._consume_label_queue)  # label için ayrı döngü
         return False
 
 
@@ -105,21 +112,30 @@ class docsearch:
 
     # write operation to the database
     def db_embed_worker(self):
-        conn, cur = docdatabase.get_conn(self.dbpath)
-        srcpath = cur.execute("SELECT source_name FROM documents").fetchall()
-        srcpath = [r[0] for r in srcpath]
-
         while True:
             doc_path = self.db_queue.get()  # the process will not proceed to other operations until data arrives from the db_queue queue
             if doc_path is None:
                 break
             # the existence of the same data in the database is checked
-            if doc_path in srcpath:
+            if doc_path in self.srcpath:
                 continue
             else:
-                self.status_label1.set_label(_("Writing:\n")+doc_path)
+                self.label_queue.put(doc_path)
                 embedfile(doc_path)  # the process of writing to the database is being performed
         self.embed_done = True
+
+
+    # It runs on the main thread and ensures the label update is safe
+    def _consume_label_queue(self):
+        try:
+            doc_path = self.label_queue.get_nowait()
+            self.status_label1.set_label(_("Writing:\n") + doc_path)
+        except queue.Empty:
+            pass
+        # stop the loop if the embed is finished
+        if self.embed_done and self.label_queue.empty():
+            return False  # stop 'GLib.timeout_add'
+        return True
 
 
     # queue consume loop
@@ -135,13 +151,15 @@ class docsearch:
                 self.listbox_done = True
                 break
 
-            filename = os.path.basename(doc_path)
-            tooltip_txt = _("File full path: ")+doc_path
-            row = self.create_row(filename, doc_path, tooltip_txt, "0")  # regardless of all sources, page number 0 is returned
-            self.listbox.add(row)
+            self.pending_rows.append((os.path.basename(doc_path), doc_path, _("File full path: ")+doc_path))  # the necessary data is being added to the list
 
         # the main screen will not be accessed until the result of both operations is True, and `return True` will continue to run
         if self.listbox_done and self.embed_done:
+            # once all operations are complete, the files are printed to the menu
+            for filename, doc_path, tooltip_txt in self.pending_rows:
+                row = self.create_row(filename, doc_path, tooltip_txt, "0")
+                self.listbox.add(row)
+            self.pending_rows.clear()
             self.mainstack.set_visible_child_name("mainbox")
             self.info_label.set_label(_("Total files: ")+str(self.db_total_files))
             self.listbox.show_all()
@@ -304,4 +322,3 @@ class docsearch:
 
 app = docsearch()
 Gtk.main()
-
