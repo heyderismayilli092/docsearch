@@ -2,6 +2,8 @@ import pdfplumber
 import hashlib
 import docdatabase
 import fitz
+import psutil
+import multiprocessing as mp
 from PyPDF2 import PdfReader
 from pathlib import Path
 
@@ -17,6 +19,42 @@ def file_hash_bytes(data: bytes):
 def is_bad_page_fast(page_text):
     return len(page_text.strip()) < 30
 
+# time-based file processing function
+def _extract_worker(tmp_path, page_no, x_tol, y_tol, layout, queue):
+    try:
+        with pdfplumber.open(tmp_path) as pdf:
+            page = pdf.pages[page_no - 1]
+            text = page.extract_text(
+                x_tolerance=x_tol,
+                y_tolerance=y_tol,
+                layout=layout
+            )
+            queue.put(text)
+
+    except Exception as e:
+        queue.put(None)
+
+def safe_extract_page(tmp_path, page_no, timeout=5, layout=True, x_tol=2, y_tol=2):
+    queue = mp.Queue()
+
+    p = mp.Process(
+        target=_extract_worker,
+        args=(tmp_path, page_no, x_tol, y_tol, layout, queue)
+    )
+
+    p.start()
+    p.join(timeout)
+
+    # Kill the process if it hasn't finished on time
+    if p.is_alive():
+        p.terminate()
+        p.join()
+        return None
+
+    if not queue.empty():
+        return queue.get()
+
+    return None
 
 
 # ---- Converting TXT files to text ----
@@ -85,9 +123,12 @@ def index_pdf_bytes(filename, data):
                 text = None
 
                 try:
-                    text = page.extract_text(x_tolerance=2, y_tolerance=2, layout=True)
+                    text = safe_extract_page(tmp_path=tmp_path, page_no=page_no, timeout=5, layout=True)  # secure page processing function (5-second processing time)
+                    if not text:  # if the process has stopped, skip this page
+                        continue
                 except Exception:
                     pass
+
 
                 if text and len(text.strip()) >= 20:
                     extracted_any = True
@@ -96,7 +137,9 @@ def index_pdf_bytes(filename, data):
                         chunk = text[i:i + PDF_CHARS_PER_CHUNK].strip()
                         if chunk:
                             docdatabase.insert_row(cur, filename, "pdf", page_no, None, None, chunk)
+
                         i += PDF_CHARS_PER_CHUNK - PDF_OVERLAP
+                conn.commit()
 
         docdatabase.indexed_files(cur, filename, fhash)  # the file path and hash value are printed to the database
         conn.commit()
