@@ -4,5 +4,5 @@ echo "Create venv..."
 python3 -m venv --system-site-packages /opt/docsearch/venv  # to avoid issues with GTK libraries connected to the main system, the venv environment is properly configured
 
 echo "Install requirements..."
-/opt/docsearch/venv/bin/pip install rank-bm25 pymupdf pdfplumber
+/opt/docsearch/venv/bin/pip install rank-bm25 pymupdf PyPDF2 pdfplumber pypdf
 
