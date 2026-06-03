@@ -75,10 +75,11 @@ def index_txt_bytes(filename, data):
 
         if text:
             docdatabase.insert_row(cur, filename, "txt", None, start + 1, end, text)  # writing to the database
+            conn.commit()
 
-        docdatabase.indexed_files(cur, filename, fhash)  # the file path and hash value are printed to the database
-        conn.commit()
         i += TXT_LINES_PER_CHUNK - TXT_OVERLAP
+
+    docdatabase.indexed_files(cur, filename, fhash)  # the file path and hash value are printed to the database
     conn.commit()
 
 
