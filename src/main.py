@@ -70,8 +70,13 @@ class docsearch:
         self.db_total_files = docdatabase.totalfiles(self.dbpath)
 
         self.conn, self.cur = docdatabase.get_conn(self.dbpath)
-        self.srcpath = self.cur.execute("SELECT source_name FROM documents").fetchall()
-        self.srcpath = [r[0] for r in self.srcpath]
+        # a list is obtained of all files that the software has passed through, whether processed or unprocessed
+        self.prcfiles = self.cur.execute("""
+        SELECT source_name FROM indexed_files
+        UNION ALL
+        SELECT source_name FROM unprocessables;
+        """).fetchall()
+        self.prcfiles = [r[0] for r in self.prcfiles]
 
         # the total number of files reviewed by the software is obtained by summing the file counts in the 'indexed_files' and 'unprocessable' tables
         self.processed_files_num = int(self.cur.execute("""SELECT SUM(satir_sayisi)
@@ -129,7 +134,7 @@ class docsearch:
             if doc_path is None:
                 break
             # the existence of the same data in the database is checked
-            if doc_path in self.srcpath:
+            if doc_path in self.prcfiles:
                 continue
             else:
                 self.label_queue.put(doc_path)
