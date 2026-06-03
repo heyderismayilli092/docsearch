@@ -61,6 +61,8 @@ def safe_extract_page(tmp_path, page_no, timeout=5, layout=True, x_tol=2, y_tol=
 def index_txt_bytes(filename, data):
     conn, cur = docdatabase.get_conn(dbpath)
 
+    fhash = file_hash_bytes(data)  # retrieve file hash value
+
     TXT_LINES_PER_CHUNK = 10
     TXT_OVERLAP = 2
     lines = data.decode("utf-8", errors="ignore").splitlines()  # data arriving in binaries is being decoded
@@ -73,6 +75,9 @@ def index_txt_bytes(filename, data):
 
         if text:
             docdatabase.insert_row(cur, filename, "txt", None, start + 1, end, text)  # writing to the database
+
+        docdatabase.indexed_files(cur, filename, fhash)  # the file path and hash value are printed to the database
+        conn.commit()
         i += TXT_LINES_PER_CHUNK - TXT_OVERLAP
     conn.commit()
 
@@ -123,7 +128,7 @@ def index_pdf_bytes(filename, data):
                 text = None
 
                 try:
-                    text = safe_extract_page(tmp_path=tmp_path, page_no=page_no, timeout=5, layout=True)  # secure page processing function (5-second processing time)
+                    text = safe_extract_page(tmp_path=tmp_path, page_no=page_no, timeout=60, layout=True)  # secure page processing function (60-second processing time)
                     if not text:  # if the process has stopped, skip this page
                         continue
                 except Exception:
