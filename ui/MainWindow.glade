@@ -8,7 +8,7 @@
     <property name="program-name">Document Search</property>
     <property name="version">0.0.1</property>
     <property name="copyright" translatable="yes">© OpenSF90</property>
-    <property name="comments" translatable="yes">A search application for quick access to desired documents and text files on your computer</property>
+    <property name="comments" translatable="yes">A search application that provides quick access to the documents and text files you want on your computer by searching their contents</property>
     <property name="website">https://github.com/heyderismayilli092/docsearch</property>
     <property name="website-label" translatable="yes">Web Page</property>
     <property name="authors">Heydar Ismayilli &lt;heyderismayilli092@gmail.com&gt;</property>
