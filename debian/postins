@@ -1,0 +1,8 @@
+#!/bin/bash
+
+echo "Create venv..."
+python3 -m venv /opt/docsearch/venv
+
+echo "Install requirements..."
+/opt/docsearch/venv/bin/pip install rank-bm25 pymupdf pdfplumber
+
