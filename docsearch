@@ -11,5 +11,6 @@ if sys.executable != venv_python:
         [venv_python] + sys.argv
     )
 
+sys.path.insert(0, '/usr/share/local-fileshare/src/')
 import main
 
