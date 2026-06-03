@@ -73,14 +73,24 @@ class docsearch:
         self.srcpath = self.cur.execute("SELECT source_name FROM documents").fetchall()
         self.srcpath = [r[0] for r in self.srcpath]
 
+        # the total number of files reviewed by the software is obtained by summing the file counts in the 'indexed_files' and 'unprocessable' tables
+        self.processed_files_num = int(self.cur.execute("""SELECT SUM(satir_sayisi)
+        FROM (
+            SELECT COUNT(*) AS satir_sayisi FROM unprocessables
+            UNION ALL
+            SELECT COUNT(*) AS satir_sayisi FROM indexed_files
+        );""").fetchone()[0])
+
         # process queue structure
         self.doc_queue = queue.Queue()
         self.db_queue  = queue.Queue()
-        self.label_queue = queue.Queue()  # Yeni: label güncellemeleri için ayrı kuyruk
+        self.label_queue = queue.Queue()  # separate queue for label updates
+        self.remfiles_queue = queue.Queue()
 
         self._consuming   = False
         self.listbox_done = False  # once objects are entered into the list box, this variable is set to "True" when the process is complete
         self.embed_done   = False  # This variable is set to "True" after the database embedding process is complete
+        self.total_files  = None
 
         self.pending_rows = []  # (filename, doc_path, tooltip_txt) tuples
 
@@ -95,13 +105,15 @@ class docsearch:
         if not self._consuming:
             self._consuming = True
             GLib.timeout_add(100, self._consume_queue)  # consume at 100 ms intervals
-            GLib.timeout_add(100, self._consume_label_queue)  # label için ayrı döngü
+            GLib.timeout_add(100, self._consume_label_queue)  # separate loop for label
         return False
 
 
     # listing files, printing to database
     def docs_list_process(self):
-        for f in files_list():  # files_list() --- (may be CPU/IO bound)
+        fileslist = files_list()  # the files to be processed are being retrieved from the computer
+        self.total_files = len(fileslist)  # total files number added
+        for f in fileslist:
             self.doc_queue.put(f)
             self.db_queue.put(f)
         self.listbox_done = True
@@ -122,6 +134,8 @@ class docsearch:
             else:
                 self.label_queue.put(doc_path)
                 embedfile(doc_path)  # the process of writing to the database is being performed
+                self.processed_files_num += 1
+                self.remfiles_queue.put((self.total_files - self.processed_files_num))  # the number of unprocessed files is being added to the queue
         self.embed_done = True
 
 
@@ -129,7 +143,8 @@ class docsearch:
     def _consume_label_queue(self):
         try:
             doc_path = self.label_queue.get_nowait()
-            self.status_label1.set_label(_("Writing:\n") + doc_path)
+            remfiles = self.remfiles_queue.get_nowait()
+            self.status_label1.set_label(_("Writing: ") + doc_path + _("\nTotal files: ") + str(self.total_files) + _("\nRemaining files: ") + str(remfiles))
         except queue.Empty:
             pass
         # stop the loop if the embed is finished
@@ -322,3 +337,4 @@ class docsearch:
 
 app = docsearch()
 Gtk.main()
+
