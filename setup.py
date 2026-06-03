@@ -43,7 +43,7 @@ data_files = [
 
     ("/usr/share/docsearch/src",
      ["src/main.py",
-      "src/docsearch_function.py",
+      "src/docsearch_functions.py",
       "src/docsearch.py",
       "src/docextract.py",
       "src/docdatabase.py"]),
