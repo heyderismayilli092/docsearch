@@ -11,6 +11,6 @@ if sys.executable != venv_python:
         [venv_python] + sys.argv
     )
 
-sys.path.insert(0, '/usr/share/local-fileshare/src/')
+sys.path.insert(0, '/usr/share/docsearch/src/')
 import main
 
