@@ -1,0 +1,54 @@
+# Heydar Ismayilli <heyderismayilli092@gmail.com>
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-04 00:44+0400\n"
+"PO-Revision-Date: 2026-06-04 00:44+0400\n"
+"Last-Translator: Heydar Ismayilli <heyderismayilli092@gmail.com>\n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"X-Generator: Gtranslator 48.0\n"
+
+msgid "Document Search"
+msgstr "Belge Arayıcı"
+
+msgid "A search application that provides quick access to the documents and text files you want on your computer by searching their contents"
+msgstr "Bilgisayarınızdaki istediğiniz belgelere ve metin dosyalarına içeriklerini arayarak hızlı erişim sağlayan bir arama uygulaması"
+
+msgid "Show all files"
+msgstr "Tüm dosyaları listele"
+
+msgid "Enter the content:"
+msgstr "İçerik giriniz:"
+
+msgid "The process of writing files from your computer to the database may take a long time\nDo not close the screen until the process is complete"
+msgstr "Bilgisayarınızdaki dosyaların veritabanına yazılması işlemi uzun sürebilir\nİşlem tamamlanana kadar ekranı kapatmayın"
+
+msgid "Writing: "
+msgstr "Yazılıyor: "
+
+msgid "\nTotal files: "
+msgstr "\nToplam dosyalar: "
+
+msgid "\nRemaining files: "
+msgstr "\nKalan dosyalar: "
+
+msgid "File full path: "
+msgstr "Dosyanın tam yolu: "
+
+msgid "Total files: "
+msgstr "Toplam dosyalar: "
+
+msgid "Open"
+msgstr "Aç"
+
+msgid "Open in directory"
+msgstr "Dizin içinde aç"
+
+msgid "Content:\n"
+msgstr "İçerik:\n"
