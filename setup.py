@@ -61,7 +61,7 @@ setup(
     data_files=data_files,
     author="Heydar Ismayilli",
     author_email="heyderismayilli092@gmail.com",
-    description="",
+    description="A search application that provides quick access to the documents and text files you want on your computer by searching their contents",
     license="GPLv3",
     keywords="docsearch, documents, files, pdf, txt, docx, word",
     url="https://github.com/heyderismayilli092/docsearch",
