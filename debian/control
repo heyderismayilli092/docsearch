@@ -8,6 +8,6 @@ Homepage: https://github.com/heyderismayilli092/docsearch
 
 Package: docsearch
 Architecture: all
-Depends: python3-pymupdf
+Depends: python3-pymupdf, evince
 Description: Document Search
   A search application that provides quick access to the documents and text files you want on your computer by searching their contents
