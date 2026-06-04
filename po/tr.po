@@ -23,6 +23,9 @@ msgstr "Bilgisayarınızdaki istediğiniz belgelere ve metin dosyalarına içeri
 msgid "Show all files"
 msgstr "Tüm dosyaları listele"
 
+msgid "Retrieve files list..."
+msgstr "Tüm dosyaların listesi alınıyor..."
+
 msgid "Enter the content:"
 msgstr "İçerik giriniz:"
 
@@ -31,6 +34,12 @@ msgstr "Bilgisayarınızdaki dosyaların veritabanına yazılması işlemi uzun 
 
 msgid "Writing: "
 msgstr "Yazılıyor: "
+
+msgid "The search in progress, please wait..."
+msgstr "Arama işlemi devam ediyor, lütfen bekleyiniz..."
+
+msgid "The files are being listed, please wait..."
+msgstr "Dosyalar listeleniyor, lütfen bekleyiniz..."
 
 msgid "\nTotal files: "
 msgstr "\nToplam dosyalar: "
