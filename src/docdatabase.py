@@ -34,7 +34,7 @@ def create_database(db):
     # 'indexed_files' table
     cur.execute("""
     CREATE TABLE IF NOT EXISTS indexed_files (
-        source_name TEXT PRIMARY KEY,
+        source_name TEXT,
         file_hash TEXT
     )
     """)
