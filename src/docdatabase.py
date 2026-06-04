@@ -92,7 +92,6 @@ def get_conn(db):
 # Shows the total number of processed files in the database
 def totalfiles(db):
   conn, cur = get_conn(db)
-  output_num = cur.execute("SELECT COUNT(DISTINCT source_name) FROM documents;").fetchone()[0]
+  output_num = cur.execute("SELECT COUNT(source_name) FROM indexed_files;").fetchone()[0]
   return output_num
-
 
