@@ -67,7 +67,6 @@ class docsearch:
         self.search_entry.set_width_chars(40)  # length of the text box
         self.scrolled_window.set_min_content_height(400)  # the height of the list window is being adjusted in pixels
         self.mainstack.set_visible_child_name("page0")
-        self.db_total_files = docdatabase.totalfiles(self.dbpath)
 
         self.conn, self.cur = docdatabase.get_conn(self.dbpath)
         # a list is obtained of all files that the software has passed through, whether processed or unprocessed
@@ -96,6 +95,7 @@ class docsearch:
         self.listbox_done = False  # once objects are entered into the list box, this variable is set to "True" when the process is complete
         self.embed_done   = False  # This variable is set to "True" after the database embedding process is complete
         self.total_files  = None
+        self.db_total_files = None
 
         self.pending_rows = []  # (filename, doc_path, tooltip_txt) tuples
 
@@ -175,6 +175,7 @@ class docsearch:
 
         # the main screen will not be accessed until the result of both operations is True, and `return True` will continue to run
         if self.listbox_done and self.embed_done:
+            self.db_total_files = docdatabase.totalfiles(self.dbpath)  # the total number of files processed into the database is being retrieved
             # once all operations are complete, the files are printed to the menu
             for filename, doc_path, tooltip_txt in self.pending_rows:
                 row = self.create_row(filename, doc_path, tooltip_txt, "0")
