@@ -1,5 +1,6 @@
 import sqlite3
 import uuid
+import os
 import threading
 
 _local = threading.local()
@@ -94,4 +95,24 @@ def totalfiles(db):
   conn, cur = get_conn(db)
   output_num = cur.execute("SELECT COUNT(source_name) FROM indexed_files;").fetchone()[0]
   return output_num
+
+
+# ----------------------------------------
+# A function that deletes information from the database associated with a file that has been removed from the system
+def removefile(db):
+    conn, cur = get_conn(db)
+    #  a list is obtained of all files that the software has passed through, whether processed or unprocessed
+    prcfiles = cur.execute("""
+        SELECT source_name FROM indexed_files
+        UNION ALL
+        SELECT source_name FROM unprocessables;
+    """).fetchall()
+
+    # if a file that exists in the database does not exist on the computer, it is removed from the database
+    for prcfile in [r[0] for r in prcfiles]:
+        if not os.path.exists(prcfile):
+            cur.execute("DELETE FROM documents WHERE source_name = ?", (prcfile,))
+            cur.execute("DELETE FROM indexed_files WHERE source_name = ?", (prcfile,))
+            cur.execute("DELETE FROM unprocessables WHERE source_name = ?", (prcfile,))
+    conn.commit()
 

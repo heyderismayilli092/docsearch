@@ -133,14 +133,17 @@ class docsearch:
             doc_path = self.db_queue.get()  # the process will not proceed to other operations until data arrives from the db_queue queue
             if doc_path is None:
                 break
-            # the existence of the same data in the database is checked
-            if doc_path in self.prcfiles:
+
+            if doc_path in self.prcfiles:  # the existence of the same data in the database is checked
                 continue
             else:
                 self.label_queue.put(doc_path)
                 embedfile(doc_path)  # the process of writing to the database is being performed
                 self.processed_files_num += 1
                 self.remfiles_queue.put((self.total_files - self.processed_files_num))  # the number of unprocessed files is being added to the queue
+
+        docdatabase.removefile(self.dbpath)  # the database is being checked to see if there are files that are not actually on the computer
+
         self.embed_done = True
 
 
