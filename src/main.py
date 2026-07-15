@@ -195,6 +195,7 @@ class docsearch:
     # row function to be created for each data point
     def create_row(self, filename, fullpath, tooltip_txt, pagenum):
         row_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+        row_box.set_margin_bottom(10)
 
         # ICON box
         if filename[-3:] == "pdf":
