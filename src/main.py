@@ -218,11 +218,20 @@ class docsearch:
         label_path = Gtk.Label(label=short_path)
         label_path.set_xalign(0)
 
-        # BUTTON box and buttons
-        button_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        # Button Box and buttons
+        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         button_box.set_halign(Gtk.Align.END)
-        button_open = Gtk.Button(label=_("Open"))
-        button_opndir = Gtk.Button(label=_("Open in directory"))
+        button_box.set_valign(Gtk.Align.CENTER)
+
+        button_open = Gtk.Button()
+        button_open.set_image(Gtk.Image.new_from_icon_name("document-open-symbolic", Gtk.IconSize.BUTTON))
+        button_open.set_tooltip_text(_("Open"))
+        button_open.set_relief(Gtk.ReliefStyle.NONE)
+
+        button_opndir = Gtk.Button()
+        button_opndir.set_image(Gtk.Image.new_from_icon_name("folder-open-symbolic", Gtk.IconSize.BUTTON))
+        button_opndir.set_tooltip_text(_("Open in directory"))
+        button_opndir.set_relief(Gtk.ReliefStyle.NONE)
 
         # -------Signals-------
         button_open.connect("clicked", self.on_open_file, fullpath, pagenum)
